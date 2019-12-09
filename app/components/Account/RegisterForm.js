@@ -82,7 +82,6 @@ function RegisterForm(props) {
                                                 name={hideRepeatPassword ? 'remove-red-eye' : 'panorama-fish-eye'}
                                                 iconStyle={styles.iconRight}
                                                 onPress={() => setHideRepeatPassword(!hideRepeatPassword)}
-
                                         />
                                 }
                         />
