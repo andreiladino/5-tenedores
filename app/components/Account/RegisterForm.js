@@ -3,16 +3,20 @@ import { View, StyleSheet, Text } from 'react-native'
 import { Input, Icon, Button } from 'react-native-elements'
 import { validateEmail } from '../../utils/Validation'
 import * as firebase from 'firebase'
+import { withNavigation } from 'react-navigation';
+import Loading from '../Loading'
 
-export default function RegisterForm(props) {
-        const { toastRef } = props
+function RegisterForm(props) {
+        const { toastRef, navigation } = props
         const [hidePassword, setHidePassword] = useState(true)
         const [hideRepeatPassword, setHideRepeatPassword] = useState(true)
         const [email, setemail] = useState('')
         const [password, setpassword] = useState('')
         const [repeatPassword, setRepeatPassword] = useState('')
+        const [isVisibleLoading, setisVisibleLoading] = useState(false)
 
         const register = async () => {
+                setisVisibleLoading(true)
                 if (!email || !password || !repeatPassword) {
                         toastRef.current.show('Todos los campos son obligatorios')
                 } else {
@@ -26,7 +30,7 @@ export default function RegisterForm(props) {
                                                 .auth()
                                                 .createUserWithEmailAndPassword(email.trim(), password)
                                                 .then(() => {
-                                                        toastRef.current.show('usuario creado correctamente')
+                                                        navigation.navigate('MyAccount')
                                                 })
                                                 .catch(() => {
                                                         toastRef.current.show('Error al crear la cuenta')
@@ -34,6 +38,7 @@ export default function RegisterForm(props) {
                                 }
                         }
                 }
+                setisVisibleLoading(false)
         }
 
         return (
@@ -87,9 +92,15 @@ export default function RegisterForm(props) {
                                 buttonStyle={styles.btnRegister}
                                 onPress={register}
                         />
+                        <Loading
+                                text='Creando Cuenta...'
+                                isVisible={isVisibleLoading}
+                        />
                 </View>
         )
 }
+
+export default withNavigation(RegisterForm)
 
 const styles = StyleSheet.create({
         formContainer: {

@@ -5,7 +5,6 @@ import RegisterForm from '../../components/Account/RegisterForm'
 import Toast from 'react-native-easy-toast'
 
 export default function Register(props) {
-        console.log(props)
         const toastRef = useRef()
         return (
                 <KeyboardAwareScrollView>
