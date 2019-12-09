@@ -4,8 +4,8 @@ import { Input, Icon, Button } from 'react-native-elements'
 import { validateEmail } from '../../utils/Validation'
 import * as firebase from 'firebase'
 
-export default function RegisterForm() {
-
+export default function RegisterForm(props) {
+        const { toastRef } = props
         const [hidePassword, setHidePassword] = useState(true)
         const [hideRepeatPassword, setHideRepeatPassword] = useState(true)
         const [email, setemail] = useState('')
@@ -14,22 +14,22 @@ export default function RegisterForm() {
 
         const register = async () => {
                 if (!email || !password || !repeatPassword) {
-                        console.log('Todos los campos son obligatorios')
+                        toastRef.current.show('Todos los campos son obligatorios')
                 } else {
                         if (!validateEmail(email)) {
-                                console.log('El email no es válido')
+                                toastRef.current.show('El email no es válido')
                         } else {
                                 if (password !== repeatPassword) {
-                                        console.log('Las contraseñas no son iguales')
+                                        toastRef.current.show('Las contraseñas no son iguales')
                                 } else {
                                         await firebase
                                                 .auth()
-                                                .createUserWithEmailAndPassword(email, password)
+                                                .createUserWithEmailAndPassword(email.trim(), password)
                                                 .then(() => {
-                                                        console.log('usuario creado correctamente')
+                                                        toastRef.current.show('usuario creado correctamente')
                                                 })
                                                 .catch(() => {
-                                                        console.log('Error al crear la cuenta')
+                                                        toastRef.current.show('Error al crear la cuenta')
                                                 })
                                 }
                         }
@@ -74,7 +74,7 @@ export default function RegisterForm() {
                                 rightIcon={
                                         <Icon
                                                 type='material-comunity'
-                                                name='remove-red-eye'
+                                                name={hideRepeatPassword ? 'remove-red-eye' : 'panorama-fish-eye'}
                                                 iconStyle={styles.iconRight}
                                                 onPress={() => setHideRepeatPassword(!hideRepeatPassword)}
 
