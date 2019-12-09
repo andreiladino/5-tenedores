@@ -1,17 +1,30 @@
 import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Input, Icon, Button } from 'react-native-elements'
+import { validateEmail } from '../../utils/Validation'
+import Loading from '../Loading'
 
-export default function LoginForm() {
-
+export default function LoginForm(props) {
+        const { toastRef } = props
         const [hidePassword, sethidePassword] = useState(true)
         const [email, setemail] = useState('')
         const [password, setpassword] = useState('')
+        const [isVisibleLoading, setisVisibleLoading] = useState(false)
 
         const login = () => {
-                console.log('usuario logueado...')
-                console.log(`Email: ${email}`)
-                console.log(`Password: ${password}`)
+                setisVisibleLoading(true)
+                if (!email || !password) {
+                        toastRef.current.show('Todos los campos son obligatorios')
+                } else {
+                        if (!validateEmail(email)) {
+                                toastRef.current.show('El email no es válido')
+                        } else {
+                                // TO DO : Lógica para hacer login con firebase
+                                console.log('Login correcto...')
+                        }
+                }
+                setisVisibleLoading(false)
+
         }
 
         return (
@@ -48,6 +61,10 @@ export default function LoginForm() {
                                 containerStyle={styles.btnContainerLogin}
                                 buttonStyle={styles.btnLogin}
                                 onPress={login}
+                        />
+                        <Loading
+                                isVisible={isVisibleLoading}
+                                text='Iniciando sesión'
                         />
                 </View>
         )
