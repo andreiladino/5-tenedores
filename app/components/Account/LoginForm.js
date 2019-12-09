@@ -2,16 +2,19 @@ import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Input, Icon, Button } from 'react-native-elements'
 import { validateEmail } from '../../utils/Validation'
+import { withNavigation } from 'react-navigation';
+import * as firebase from 'firebase'
 import Loading from '../Loading'
 
-export default function LoginForm(props) {
-        const { toastRef } = props
+
+function LoginForm(props) {
+        const { toastRef, navigation } = props
         const [hidePassword, sethidePassword] = useState(true)
         const [email, setemail] = useState('')
         const [password, setpassword] = useState('')
         const [isVisibleLoading, setisVisibleLoading] = useState(false)
 
-        const login = () => {
+        const login = async () => {
                 setisVisibleLoading(true)
                 if (!email || !password) {
                         toastRef.current.show('Todos los campos son obligatorios')
@@ -19,8 +22,15 @@ export default function LoginForm(props) {
                         if (!validateEmail(email)) {
                                 toastRef.current.show('El email no es válido')
                         } else {
-                                // TO DO : Lógica para hacer login con firebase
-                                console.log('Login correcto...')
+                                await firebase
+                                        .auth()
+                                        .signInWithEmailAndPassword(email.trim(), password)
+                                        .then(() => {
+                                                navigation.navigate('MyAccount')
+                                        })
+                                        .catch(() => {
+                                                console.log('Email o contraseña incorrecta')
+                                        })
                         }
                 }
                 setisVisibleLoading(false)
@@ -68,7 +78,9 @@ export default function LoginForm(props) {
                         />
                 </View>
         )
-};
+}
+
+export default withNavigation(LoginForm)
 
 const styles = StyleSheet.create({
         formContainer: {
