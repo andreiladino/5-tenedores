@@ -4,7 +4,7 @@ import { Divider } from 'react-native-elements';
 import { withNavigation } from 'react-navigation'
 import LoginForm from '../../components/Account/LoginForm'
 import Toast from 'react-native-easy-toast'
-
+import LoginFacebook from '../../components/Account/LoginFacebook'
 
 export default function Login(props) {
         const { navigation } = props
@@ -23,7 +23,7 @@ export default function Login(props) {
                         </View>
                         <Divider style={styles.divider} />
                         <View style={styles.viewContainer}>
-                                <Text>Login Facebook...</Text>
+                                <LoginFacebook />
                         </View>
                         <Toast
                                 ref={toastRef}
