@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "expo": "^35.0.1",
+    "expo-cli": "^3.11.1",
+    "expo-facebook": "7.0.0",
     "firebase": "^7.5.0",
     "firebase-react": "^1.0.3",
     "react": "16.8.3",
