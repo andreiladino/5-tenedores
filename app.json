@@ -28,7 +28,8 @@
     },
     "android": {
       "permissions": [
-        "CAMERA_ROLL"
+        "CAMERA_ROLL",
+        "LOCATION"
       ]
     }
   }

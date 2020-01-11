@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import { Text, View, StyleSheet } from 'react-native'
 import ActionButton from 'react-native-action-button'
-import * as firebase from 'firebase'
+import ListRestaurants from '../../components/Restaurants/ListRestauarants'
+
+import { firebaseApp } from '../../utils/FireBase'
+import firebase from 'firebase/app'
+import 'firebase/firestore'
+
+const db = firebase.firestore(firebaseApp)
+
 
 export default function Restaurants(props) {
 
         const { navigation } = props
         const [User, setUser] = useState(null)
+        const [restaurants, setRestaurants] = useState([])
+        const [startRestaurants, setStartRestaurants] = useState(null)
+        const [isLoading, setIsLoading] = useState(false)
+        const [totalRestaurants, setTotalRestaurants] = useState(0)
+        const limitRestaurants = 8
+
+        console.log(restaurants)
 
         useEffect(() => {
                 firebase.auth().onAuthStateChanged(userInfo => {
@@ -14,9 +28,36 @@ export default function Restaurants(props) {
                 })
         }, [])
 
+        useEffect(() => {
+                db.collection("restaurants")
+                        .get()
+                        .then(snap => {
+                                setTotalRestaurants(snap.size)
+                        })
+
+                        (async () => {
+                                const resultRestaurants = []
+
+                                const restaurants = db
+                                        .collection('restaurants')
+                                        .orderBy('createAt', 'desc')
+                                        .limit(limitRestaurants)
+                                await restaurants.get().then((response) => {
+                                        setStartRestaurants(response.docs[response.docs.length - 1])
+                                        response.forEach(doc => {
+                                                let restaurant = doc.data()
+                                                restaurant.id = doc.id
+                                                resultRestaurants.push({ restaurant })
+                                                setRestaurants(resultRestaurants)
+                                        })
+                                })
+                        })()
+        }, [])
+
+
         return (
                 <View style={styles.viewBody}>
-                        <Text>Estamos en Restaurantes</Text>
+                        <ListRestaurants />
                         {User && <AddRestaurantButton navigation={navigation} />}
                 </View>
         )
