@@ -18,9 +18,9 @@ export default function Restaurants(props) {
         const [startRestaurants, setStartRestaurants] = useState(null)
         const [isLoading, setIsLoading] = useState(false)
         const [totalRestaurants, setTotalRestaurants] = useState(0)
+        const [isReloadRestaurants, setIsReloadRestaurants] = useState(false)
         const limitRestaurants = 8
 
-        console.log(restaurants)
 
         useEffect(() => {
                 firebase.auth().onAuthStateChanged(userInfo => {
@@ -35,40 +35,76 @@ export default function Restaurants(props) {
                                 setTotalRestaurants(snap.size)
                         })
 
-                        (async () => {
-                                const resultRestaurants = []
-
-                                const restaurants = db
-                                        .collection('restaurants')
-                                        .orderBy('createAt', 'desc')
-                                        .limit(limitRestaurants)
-                                await restaurants.get().then((response) => {
-                                        setStartRestaurants(response.docs[response.docs.length - 1])
-                                        response.forEach(doc => {
-                                                let restaurant = doc.data()
-                                                restaurant.id = doc.id
-                                                resultRestaurants.push({ restaurant })
-                                                setRestaurants(resultRestaurants)
-                                        })
-                                })
-                        })()
         }, [])
 
+        useEffect(() => {
+                (async () => {
+                        const resultRestaurants = []
+                        const restaurants = db
+                                .collection('restaurants')
+                                .orderBy('createAt', 'desc')
+                                .limit(limitRestaurants)
+                        await restaurants.get().then((response) => {
+                                setStartRestaurants(response.docs[response.docs.length - 1])
+                                response.forEach(doc => {
+                                        let restaurant = doc.data()
+                                        restaurant.id = doc.id
+                                        resultRestaurants.push({ restaurant })
+                                        setRestaurants(resultRestaurants)
+                                })
+                        })
+                })()
+                setIsReloadRestaurants(false)
+        }, [isReloadRestaurants])
+
+        const handleLoadMore = async () => {
+                const resultRestaurants = []
+                restaurants.length < totalRestaurants && setIsLoading(true)
+                const restaurantsDB = db
+                        .collection('restaurants')
+                        .orderBy('createAt', 'desc')
+                        .startAfter(startRestaurants.data().createAt)
+                        .limit(limitRestaurants)
+                await restaurantsDB.get().then(response => {
+                        if (response.docs.length > 0) {
+                                setStartRestaurants(response.docs[response.docs.length - 1])
+                        } else {
+                                setIsLoading(false)
+                        }
+                        response.forEach(doc => {
+                                let restaurant = doc.data()
+                                restaurant.id = doc.id
+                                resultRestaurants.push({ restaurant })
+                        })
+
+                        setRestaurants([...restaurants], ...resultRestaurants)
+
+                }).catch((err) => {
+
+                });
+        }
 
         return (
                 <View style={styles.viewBody}>
-                        <ListRestaurants />
-                        {User && <AddRestaurantButton navigation={navigation} />}
+                        <ListRestaurants
+                                restaurants={restaurants}
+                                isLoading={isLoading}
+                                handleLoadMore={handleLoadMore}
+                        />
+                        {User && <AddRestaurantButton
+                                navigation={navigation}
+                                setIsReloadRestaurants={setIsReloadRestaurants}
+                        />}
                 </View>
         )
 }
 
 function AddRestaurantButton(props) {
-        const { navigation } = props
+        const { navigation, setIsReloadRestaurants } = props
         return (
                 <ActionButton
                         buttonColor='#00a680'
-                        onPress={() => navigation.navigate('AddRestaurant')}
+                        onPress={() => navigation.navigate('AddRestaurant', { setIsReloadRestaurants })}
                 />
         )
 }

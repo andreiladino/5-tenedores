@@ -18,7 +18,7 @@ const WidthScreen = Dimensions.get('window').width
 
 export default function AddRestaurantForm(props) {
 
-        const { toastRef, setIsLoading, navigation } = props
+        const { toastRef, setIsLoading, navigation, setIsReloadRestaurants } = props
         const [imagesSelected, setImagesSelected] = useState([])
         const [restaurantName, setRestaurantName] = useState('')
         const [restaurantAddress, setRestaurantAddress] = useState('')
@@ -48,6 +48,7 @@ export default function AddRestaurantForm(props) {
                                         createAt: new Date(),
                                         createBy: firebaseApp.auth().currentUser.uid
                                 }).then(() => {
+                                        setIsReloadRestaurants(true)
                                         navigation.navigate('Restaurants')
                                 }).catch((err) => {
                                         // toastRef.current.show(`Error al subir el Restaurante: ${err}, 3000`)
